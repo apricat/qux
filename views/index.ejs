@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MY QUIZZ</title>
+</head>
+<body>
+<ul class="questions">
+  <% for(var i=0; i<questions.length; i++) {%>
+    <li>
+      <span><%= questions[i].question %></span>
+      <ul>
+      <% for(var j=0; j<questions[i].choice.length; j++) {%>
+      	<li><%= questions[i].choice[j].answer %></li>
+      <% } %>
+      </ul>
+    </li>
+  <% } %>
+</ul>
+<form action="/questions" method="POST">
+  <fieldset>
+    <legend>Question</legend>
+    <p><input type="text" placeholder="question" name="question"></p>
+    <p>
+      <input type="checkbox" name="choice[0][is_correct]" value="true" />
+      <input type="text" placeholder="a" name="choice[0][answer]">
+    </p>
+    <p>
+      <input type="checkbox" name="choice[1][is_correct]" value="true" />
+      <input type="text" placeholder="b" name="choice[1][answer]">
+    </p>
+    <p>
+      <input type="checkbox" name="choice[2][is_correct]" value="true" />
+      <input type="text" placeholder="c" name="choice[2][answer]">
+    </p>
+	<button type="submit">Submit</button>
+  </fieldset>
+</form>
+</body>
+</html>
