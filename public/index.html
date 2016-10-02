@@ -1,0 +1,109 @@
+<!-- index.html -->
+<!doctype html>
+
+<html ng-app="quxQuestions">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <title>Qux</title>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+
+    <script src="core.js"></script>
+
+</head>
+
+<body ng-controller="mainController">
+    <div class="container">
+
+        <div>
+            <h1>Qux</h1>
+        </div>
+
+        <div class="row">
+
+            <section id="question-list" class="col-lg-7">
+
+                <header>
+                    <h2>Questions</h2>
+                    <p>There <span ng-show="questions.length != 1">are</span><span ng-show="questions.length == 1">is</span> currently <span class="label label-info">{{ questions.length }}</span> question<span ng-show="questions.length != 1">s</span> in your quizz.</p>
+                </header>
+
+                <article ng-repeat="question in questions">
+                    <header>
+                        <h4>{{ question.text }}</h4>
+                    </header>
+                    
+                    <div ng-repeat="choice in question.answers.choices">
+                        <p>
+                            <label ng-show="question.answers.correct.indexOf($index) !== -1">
+                                <i class="fa fa-circle-o" aria-hidden="true"></i>
+                            </label>
+                            <label ng-show="question.answers.correct.indexOf($index) === -1">
+                                <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+                            </label>
+   
+                            {{ choice }}
+                        <p>
+                    </div>
+
+                    <button type="button" class="btn btn-default btn-sm" ng-click="deleteQuestion(question._id)"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                </article>
+                <hr>
+            </section>
+
+            <aside id="question-form" class="col-lg-5">
+
+                <header>
+                    <h3>Add questions</h3>
+                    <p><em>Use the checkbox to indicate what answer(s) is the correct one.</em></p>
+                </header>
+
+                <hr>
+
+                <div class="col-sm-12 col-sm-offset-2 text-center">
+                    <form>
+                        <div class="form-group">
+                            <input type="text" class="form-control input-lg text-center" placeholder="Question" ng-model="formData.text">
+                        </div>
+
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon"><input type="checkbox" value="1" ng-model="formData.answers.correct[0]"></div>
+                                <input type="text" class="form-control text-center" placeholder="Answer 1" ng-model="formData.answers.choices[0]">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon"><input type="checkbox" value="1" ng-model="formData.answers.correct[1]"></div>
+                                <input type="text" class="form-control text-center" placeholder="Answer 2" ng-model="formData.answers.choices[1]">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon"><input type="checkbox" value="1" ng-model="formData.answers.correct[2]"></div>
+                                <input type="text" class="form-control text-center" placeholder="Answer 3" ng-model="formData.answers.choices[2]">
+                            </div>
+                        </div>
+       
+                        <button type="submit" class="btn btn-primary btn-sm" ng-click="createQuestion()">Add</button>
+                    </form>
+                </div>
+            </aside>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
