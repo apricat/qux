@@ -26,8 +26,12 @@
 
         <header>
             <h1>Qux</h1>
-            <p ng-show="status == 0">Error!</p>
-            <p ng-show="status == 1">Success!</p>
+            <div ng-show="status == 1" class="alert alert-success" role="alert">
+                <strong>Success!</strong>
+            </div>
+            <div ng-show="status == 0" class="alert alert-danger" role="alert">
+                <strong>Oh no!</strong> Please try again.
+            </div>
         </header>
 
         <aside>

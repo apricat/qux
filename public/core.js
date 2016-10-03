@@ -67,6 +67,11 @@ function quizzController($scope, $http) {
         });
 
     $scope.validateAnswer = function() {
+        if (!$scope.formData.answers.length) {
+            $scope.status = ERROR;
+            return;
+        }
+
         for (var answer in $scope.formData.answers) {
             if (!$scope.formData.answers.hasOwnProperty(answer))
                 continue; 
