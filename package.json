@@ -6,10 +6,15 @@
   "author": "Claudine Lamothe",
   "license": "ISC",
   "dependencies": {
+    "angular2": "^2.0.0-beta.17",
     "body-parser": "^1.15.2",
-    "method-override": "^2.3.6",
+    "es6-shim": "^0.35.1",
     "express": "^4.14.0",
+    "method-override": "^2.3.6",
     "mongoose": "^4.4.12",
-    "morgan": "^1.1.1"
+    "morgan": "^1.1.1",
+    "reflect-metadata": "^0.1.2",
+    "rxjs": "^5.0.0-beta.6",
+    "zone.js": "^0.6.25"
   }
 }
