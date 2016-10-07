@@ -19,7 +19,7 @@ self.addEventListener('push', function(event) {
 
         var title = 'Qux quizz - A new question begs to be answered!'; 
         var message = question.text;  
-        var icon = question.icon;  
+        var icon = question.icon ? question.icon : 'images/icon.png';  
         var notificationTag = 'tag tag';
 
         var actions = [];

@@ -1,6 +1,12 @@
 # qux
 
-Qux is a simple *quizz* web application. It relies on a MEAN stack, that is, `Mongodb`, `Expressjs`, `Angularjs`, `Nodejs`, to support its features.
+Qux is a *quizz* application that uses _Web Worker Push Notifications_ to prompt users periodically with questions.
+
+![alt text][preview]
+
+[preview]: https://github.com/apricat/qux/blob/master/public/images/notification-preview.png "Notification!"
+
+It relies on a MEAN stack, that is, `Mongodb`, `Expressjs`, `Angularjs`, `Nodejs`, to support its features.
 
 ## Prerequisites
 
