@@ -1,11 +1,22 @@
 var quxQuestions = angular.module('quxQuestions', []);
 
 function mainController($scope, $http) {
+    if ('serviceWorker' in navigator) {
+        console.log('Service Worker is supported');
+        navigator.serviceWorker.register('sw.js').then(function() {
+            return navigator.serviceWorker.ready;
+        }).then(function(reg) {
+            reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) { console.log('endpoint:', sub.endpoint); });
+        }).catch(function(error) {
+            console.log('Service Worker error', error);
+        });
+    }
+
     $scope.formData = {
         "text" : "",
         "answers" : {
             "choices" : [],
-            "correct" : []
+            "correct" : 0
         }
     };
 
@@ -26,7 +37,7 @@ function mainController($scope, $http) {
                     "text" : "",
                     "answers" : {
                         "choices" : [],
-                        "correct" : []
+                        "correct" : 0
                     }
                 };
                 $scope.questions = data;
@@ -50,21 +61,6 @@ function mainController($scope, $http) {
 }
 
 function quizzController($scope, $http) {
-
-    if ('serviceWorker' in navigator) {
-
-        console.log('Service Worker is supported');
-        navigator.serviceWorker.register('sw.js').then(function() {
-            
-            return navigator.serviceWorker.ready;
-
-        }).then(function(reg) {
-            reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) { console.log('endpoint:', sub.endpoint); });
-        }).catch(function(error) {
-            console.log('Service Worker error', error);
-        });
-    }
-
     const ERROR = 0;
     const SUCCESS = 1;
 
@@ -87,18 +83,11 @@ function quizzController($scope, $http) {
             return;
         }
 
-        for (var answer in $scope.formData.answers) {
-            if (!$scope.formData.answers.hasOwnProperty(answer))
-                continue; 
-            if (!$scope.formData.answers[answer]) 
-                continue;
-
-            if (answer.indexOf($scope.question.answers.correct) === 0) {
-                $scope.status = ERROR;
-                return;
-            }
+        if ($scope.formData.answers != $scope.question.answers.correct) {
+            $scope.status = ERROR;
+            return;
         }
-
+        
         $scope.formData = {"answers" : []};
         $scope.status = SUCCESS;
         $scope.score++;

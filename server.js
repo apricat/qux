@@ -20,7 +20,7 @@ app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 var Question = mongoose.model('Question', {
     text : String,
     answers : {
-      correct: [Number],
+      correct: Number,
       choices: [String]
     }
 });

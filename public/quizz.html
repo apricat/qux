@@ -19,8 +19,6 @@
 
     <script src="core.js"></script>
 
-    <link rel="manifest" href="manifest.json">
-
 </head>
 
 <body ng-controller="quizzController">
@@ -66,7 +64,7 @@
 
                         <div ng-repeat="choice in question.answers.choices">
                             <p>
-                                <input type="checkbox" name="choice-{{$index}}" value="{{$index}}" ng-model="formData.answers[$index]">
+                                <input type="radio" name="choice" value="{{$index}}" ng-model="formData.answers[$index]">
                                 {{ choice }}
                             <p>
                         </div>
