@@ -6,12 +6,19 @@ function mainController($scope, $http) {
     // init service worker
     if ('serviceWorker' in navigator) {
         console.log('Service Worker is supported');
+
         navigator.serviceWorker.register('sw.js').then(function() {
             return navigator.serviceWorker.ready;
         }).then(function(reg) {
             reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) {
-              endpoint = sub.endpoint;
-              console.log('endpoint:', sub.endpoint);
+              endpoint = sub.endpoint.substr(sub.endpoint.lastIndexOf('/') + 1);
+              console.log('endpoint:', endpoint);
+
+              if ($scope.user == null || $scope.user.endpoint == null || $scope.user.endpoint[0] == null || $scope.user.endpoint[0] == endpoint)
+                return;
+
+              // add endpoint to current user
+              $http.put('/api/user/' + $scope.user._id, {username : $scope.user.username, score : $scope.user.score, endpoints : [endpoint]}).error(function(data) { console.log('Error updating user with new endpoint: ' + data); });
             });
         }).catch(function(error) {
             console.log('Service Worker error', error);
@@ -19,18 +26,20 @@ function mainController($scope, $http) {
     }
 
     // init user
-    var user = localStorage.getItem('quxUser');
-    if (user == null) {
+    var userId = localStorage.getItem('quxUserId');
+    console.log(userId);
+
+    if (userId == null) {
       // TODO: log out... for now lets just create a new user
       var tempUser = {
           "username" : "temp",
-          "endpoint" : endpoint,
+          "endpoints" : [endpoint],
           "score" : 0
       };
       $http.post('/api/user', tempUser)
           .success(function(data) {
               $scope.user = data;
-              localStorage.setItem('quxUser', user)
+              localStorage.setItem('quxUserId', data._id)
               console.log(data);
           })
           .error(function(data) {
@@ -39,7 +48,7 @@ function mainController($scope, $http) {
     } else {
 
       // get user data from API and not from localStorage
-      $http.get('/api/user/', {id : user.id})
+      $http.get('/api/user/' + userId, {id : userId})
           .success(function(data) {
               $scope.user = data;
               console.log(data);

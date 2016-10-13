@@ -47,10 +47,9 @@ app.get('/api/user/:id', function(req, res) {
 
   // create user
   app.post('/api/user', function(req, res) {
-    console.log("allo");
     User.create({
         username : req.body.username,
-        endpoints : [req.body.endpoint],
+        endpoints : req.body.endpoints,
         score : req.body.score
     }, function(err, user) {
         if (err)
@@ -63,13 +62,34 @@ app.get('/api/user/:id', function(req, res) {
   // increment user score
   app.put('/api/user/:id/score/:score', function(req, res) {
     User.findById(req.params.id, function(err, user) {
-      if (!user)
-        return next(new Error('Could not find user'));
+      if (!user) {
+        console.log('error');
+        return;
+      }
 
       if (!user.score)
         user.score = 0;
 
       user.score += req.params.score;
+
+      user.save(function(err) {
+        if (err)
+          console.log('error')
+        else
+          console.log('success')
+      });
+    });
+  });
+
+  // increment user score
+  app.put('/api/user/:id', function(req, res) {
+    User.findById(req.params.id, function(err, user) {
+      if (!user)
+        return next(new Error('Could not find user'));
+
+      user.username = req.body.username;
+      user.endpoints = req.body.endpoints;
+      user.score = req.body.score;
 
       user.save(function(err) {
         if (err)
@@ -95,8 +115,7 @@ app.get('/api/user/:id', function(req, res) {
             answers : {
               correct : req.body.answers.correct,
               choices : req.body.answers.choices
-            },
-            done : false
+            }
         }, function(err, question) {
             if (err)
                 res.send(err);

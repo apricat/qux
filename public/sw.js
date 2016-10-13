@@ -24,8 +24,10 @@ self.addEventListener('push', function(event) {
             actions = [];
 
         for (var i in question.answers.choices) {
+          var action = JSON.stringify({ userId: question.userId,  isCorrect: (i == question.answers.correct)});
+console.log(action);
           actions.push({
-              "action": i == question.answers.correct,
+              "action": action,
               "title": question.answers.choices[i],
               "icon": "images/answer-icon.png"
             });
@@ -66,21 +68,42 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
+var userId = 0;
+console.log(event.action);
 
-  if (event.action == "true") {  // for some reason, the event action boolean gets typecasted to a String within the event
-    // TODO send +1 score to API
+event.notification.close();
+  var result = JSON.parse(event.action);
+
+  if (result == null || result.isCorrect == null)
+    return;
+
+  if (result.isCorrect == "true") {  // for some reason, the event action boolean gets typecasted to a String within the event
+    fetch('/api/user/'+userId+'/score/1', {
+        method: 'put'
+      }).then(function(response) {
+        if (response.status !== 200) {
+          console.log('Looks like there was a problem. Status Code: ' + response.status);
+          throw new Error();
+        }
+    }).catch(function(err) {
+      console.error('Unable to increment score', err);
+    });
+
     var title = "+1",
         message = "Great answer!",
         icon = 'images/thumbs-up.png',
         notificationTag = 'success';
-  } else {
+
+  } else if (event.action == "false") {
+
     var title = ":("
         message = "Bad answer",
         icon = 'images/thumbs-down.png',
         notificationTag = 'success';
-  }
 
-  event.notification.close();
+  } else {
+    return;
+  }
 
   return self.registration.showNotification(title, {
       body: message,
