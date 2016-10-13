@@ -17,7 +17,7 @@ app.use(methodOverride());
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
-var Question = mongoose.model('Question', {
+var Questions = mongoose.model('Question', {
     text : String,
     answers : {
       correct: Number,
@@ -25,14 +25,63 @@ var Question = mongoose.model('Question', {
     }
 });
 
+var User = mongoose.model('User', {
+    username : String,
+    endpoints : [String],
+    score : Number
+});
+
 app.listen(8080);
 console.log("App listening on port 8080");
 
 // routes ======================================================================
 
-    // api ---------------------------------------------------------------------
+app.get('/api/user/:id', function(req, res) {
+    User.findById(req.params.id, function(err, user) {
+        if (err)
+            res.send(err)
+
+        res.json(user);
+    });
+});
+
+  // create user
+  app.post('/api/user', function(req, res) {
+    console.log("allo");
+    User.create({
+        username : req.body.username,
+        endpoints : [req.body.endpoint],
+        score : req.body.score
+    }, function(err, user) {
+        if (err)
+            res.send(err);
+
+        res.json(user);
+    });
+  });
+
+  // increment user score
+  app.put('/api/user/:id/score/:score', function(req, res) {
+    User.findById(req.params.id, function(err, user) {
+      if (!user)
+        return next(new Error('Could not find user'));
+
+      if (!user.score)
+        user.score = 0;
+
+      user.score += req.params.score;
+
+      user.save(function(err) {
+        if (err)
+          console.log('error')
+        else
+          console.log('success')
+      });
+    });
+  });
+
     app.get('/api/questions', function(req, res) {
-        Question.find(function(err, questions) {
+        Questions.find(function(err, questions) {
             if (err)
                 res.send(err)
 
@@ -41,7 +90,7 @@ console.log("App listening on port 8080");
     });
 
     app.post('/api/questions', function(req, res) {
-        Question.create({
+        Questions.create({
             text : req.body.text,
             answers : {
               correct : req.body.answers.correct,
@@ -52,7 +101,7 @@ console.log("App listening on port 8080");
             if (err)
                 res.send(err);
 
-            Question.find(function(err, questions) {
+            Questions.find(function(err, questions) {
                 if (err)
                     res.send(err)
                 res.json(questions);
@@ -62,13 +111,13 @@ console.log("App listening on port 8080");
     });
 
     app.delete('/api/questions/:question_id', function(req, res) {
-        Question.remove({
+        Questions.remove({
             _id : req.params.question_id
         }, function(err, question) {
             if (err)
                 res.send(err);
 
-            Question.find(function(err, questions) {
+            Questions.find(function(err, questions) {
                 if (err)
                     res.send(err)
                 res.json(questions);

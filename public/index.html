@@ -28,6 +28,8 @@
 
         <div>
             <h1>Qux</h1>
+            <p>Hello {{ user.username }}!</p>
+            <p>Current score: {{ user.score }}</p>
         </div>
 
         <div class="row">
@@ -43,16 +45,16 @@
                     <header>
                         <h4>{{ question.text }}</h4>
                     </header>
-                    
+
                     <div ng-repeat="choice in question.answers.choices">
                         <p>
-                            <label ng-show="question.answers.correct.indexOf($index) !== -1">
+                            <label ng-show="question.answers.correct == $index">
                                 <i class="fa fa-check-circle-o" aria-hidden="true"></i>
                             </label>
-                            <label ng-show="question.answers.correct.indexOf($index) === -1">
+                            <label ng-show="question.answers.correct != $index">
                                 <i class="fa fa-circle-o" aria-hidden="true"></i>
                             </label>
-   
+
                             {{ choice }}
                         <p>
                     </div>
@@ -92,7 +94,7 @@
                                 <input type="text" class="form-control text-center" placeholder="Answer 2" ng-model="formData.answers.choices[1]">
                             </div>
                         </div>
-       
+
                         <button type="submit" class="btn btn-primary btn-sm" ng-click="createQuestion()">Add</button>
                     </form>
                 </div>

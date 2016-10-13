@@ -1,17 +1,55 @@
 var quxQuestions = angular.module('quxQuestions', []);
 
 function mainController($scope, $http) {
+
+    var endpoint = "";
+    // init service worker
     if ('serviceWorker' in navigator) {
         console.log('Service Worker is supported');
         navigator.serviceWorker.register('sw.js').then(function() {
             return navigator.serviceWorker.ready;
         }).then(function(reg) {
-            reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) { console.log('endpoint:', sub.endpoint); });
+            reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) {
+              endpoint = sub.endpoint;
+              console.log('endpoint:', sub.endpoint);
+            });
         }).catch(function(error) {
             console.log('Service Worker error', error);
         });
     }
 
+    // init user
+    var user = localStorage.getItem('quxUser');
+    if (user == null) {
+      // TODO: log out... for now lets just create a new user
+      var tempUser = {
+          "username" : "temp",
+          "endpoint" : endpoint,
+          "score" : 0
+      };
+      $http.post('/api/user', tempUser)
+          .success(function(data) {
+              $scope.user = data;
+              localStorage.setItem('quxUser', user)
+              console.log(data);
+          })
+          .error(function(data) {
+              console.log('Error: ' + data);
+          });
+    } else {
+
+      // get user data from API and not from localStorage
+      $http.get('/api/user/', {id : user.id})
+          .success(function(data) {
+              $scope.user = data;
+              console.log(data);
+          })
+          .error(function(data) {
+              console.log('Error: ' + data);
+          });
+    }
+
+    // init form for additions of questions
     $scope.formData = {
         "text" : "",
         "answers" : {
@@ -20,6 +58,7 @@ function mainController($scope, $http) {
         }
     };
 
+    // get all questions
     $http.get('/api/questions')
         .success(function(data) {
             $scope.questions = data;
@@ -29,6 +68,7 @@ function mainController($scope, $http) {
             console.log('Error: ' + data);
         });
 
+    // create questions
     $scope.createQuestion = function() {
         console.log($scope.formData);
         $http.post('/api/questions', $scope.formData)
@@ -87,7 +127,7 @@ function quizzController($scope, $http) {
             $scope.status = ERROR;
             return;
         }
-        
+
         $scope.formData = {"answers" : []};
         $scope.status = SUCCESS;
         $scope.score++;
