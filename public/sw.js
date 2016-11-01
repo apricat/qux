@@ -18,17 +18,17 @@ self.addEventListener('push', function(event) {
         var question = data[Math.floor(Math.random() * data.length)];
 
         var title = 'Qux quizz - A new question begs to be answered!',
-            message = question.text,
+            message = question.content,
             icon = question.icon ? question.icon : 'images/icon.png',
             notificationTag = 'qux quizz question',
             actions = [];
 
-        for (var i in question.answers.choices) {
-          var action = JSON.stringify({ userId: question.userId,  isCorrect: (i == question.answers.correct)});
-console.log(action);
+        for (var i in question.answers) {
+          var action = JSON.stringify({ userId: question._userId,  isCorrect: (i == question.correctAnswer)});
+
           actions.push({
               "action": action,
-              "title": question.answers.choices[i],
+              "title": question.answers[i],
               "icon": "images/answer-icon.png"
             });
         }

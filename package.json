@@ -10,12 +10,15 @@
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
     "bootstrap": "^4.0.0-alpha.4",
+    "cron": "^1.1.1",
     "es6-shim": "^0.35.1",
     "express": "^4.14.0",
+    "http": "0.0.0",
     "method-override": "^2.3.6",
     "mongoose": "^4.6.2",
     "morgan": "^1.7.0",
     "reflect-metadata": "^0.1.8",
+    "request": "^2.76.0",
     "rxjs": "^5.0.0-rc.1",
     "zone.js": "^0.6.25"
   }
