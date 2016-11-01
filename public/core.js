@@ -13,83 +13,59 @@ function mainController($scope, $http) {
             reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) {
               endpoint = sub.endpoint.substr(sub.endpoint.lastIndexOf('/') + 1);
               console.log('endpoint:', endpoint);
-
-              if ($scope.user == null || $scope.user.endpoint == null || $scope.user.endpoint[0] == null || $scope.user.endpoint[0] == endpoint)
-                return;
-
-              // add endpoint to current user
-              $http.put('/api/user/' + $scope.user._id, {username : $scope.user.username, score : $scope.user.score, endpoints : [endpoint]}).error(function(data) { console.log('Error updating user with new endpoint: ' + data); });
             });
         }).catch(function(error) {
             console.log('Service Worker error', error);
         });
     }
 
-    // init user
-    var userId = localStorage.getItem('quxUserId');
-    console.log(userId);
+    //var userId = localStorage.getItem('quxUserId');
+    var userId = "5817e3f72b3fd73a2ede4fda"; // @TODO temporary: remove after login
 
-    if (userId == null) {
-      // TODO: log out... for now lets just create a new user
-      var tempUser = {
-          "username" : "temp",
-          "endpoints" : [endpoint],
-          "score" : 0
-      };
-      $http.post('/api/user', tempUser)
-          .success(function(data) {
-              $scope.user = data;
-              localStorage.setItem('quxUserId', data._id)
-              console.log(data);
-          })
-          .error(function(data) {
-              console.log('Error: ' + data);
-          });
-    } else {
-
-      // get user data from API and not from localStorage
-      $http.get('/api/user/' + userId, {id : userId})
-          .success(function(data) {
-              $scope.user = data;
-              console.log(data);
-          })
-          .error(function(data) {
-              console.log('Error: ' + data);
-          });
-    }
-
-    // init form for additions of questions
-    $scope.formData = {
-        "text" : "",
-        "answers" : {
-            "choices" : [],
-            "correct" : 0
-        }
-    };
-
-    // get all questions
-    $http.get('/api/questions')
+      // get user data from API
+    $http.get('/api/user/' + userId)
         .success(function(data) {
-            $scope.questions = data;
+            $scope.user = data;
             console.log(data);
         })
         .error(function(data) {
             console.log('Error: ' + data);
         });
 
+    // init form for additions of questions
+    $scope.formData = {
+        "content" : "",
+        "answers" : [],
+        "correctAnswer" : 0
+    };
+
+    // get all user questions
+    $scope.getUserQuestions = function() {
+      $http.get('/api/user/' + userId + '/questions')
+          .success(function(data) {
+              $scope.questions = data;
+              console.log(data);
+          })
+          .error(function(data) {
+              console.log('Error: ' + data);
+          });
+    };
+    $scope.getUserQuestions();
+
     // create questions
     $scope.createQuestion = function() {
         console.log($scope.formData);
-        $http.post('/api/questions', $scope.formData)
+
+        // todo upload thumbnail and return path
+
+        $http.post('/api/question', $scope.formData)
             .success(function(data) {
                 $scope.formData = {
-                    "text" : "",
-                    "answers" : {
-                        "choices" : [],
-                        "correct" : 0
-                    }
+                    "content" : "",
+                    "answers" : [],
+                    "correctAnswer" : 0
                 };
-                $scope.questions = data;
+                $scope.getUserQuestions();
                 console.log(data);
             })
             .error(function(data) {
@@ -98,9 +74,9 @@ function mainController($scope, $http) {
     };
 
     $scope.deleteQuestion = function(id) {
-        $http.delete('/api/questions/' + id)
+        $http.delete('/api/question/' + id)
             .success(function(data) {
-                $scope.questions = data;
+                $scope.getUserQuestions();
                 console.log(data);
             })
             .error(function(data) {
@@ -132,7 +108,7 @@ function quizzController($scope, $http) {
             return;
         }
 
-        if ($scope.formData.answers != $scope.question.answers.correct) {
+        if ($scope.formData.answers != $scope.question.correctAnswer) {
             $scope.status = ERROR;
             return;
         }
