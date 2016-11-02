@@ -1,6 +1,6 @@
 // Load required packages
-var User = require('../models/user');
-var Question = require('../models/question');
+var User = require('../dao/user');
+var Question = require('../dao/question');
 
 // POST /api/users
 exports.postUsers = function(req, res) {
@@ -29,7 +29,7 @@ exports.getUsers = function(req, res) {
 
 // GET /api/user/:user_id
 exports.getUser = function(req, res) {
-  User.findByIdAndRemove(req.params.user_id, function(err, user) {
+  User.findById({ _id : req.params.user_id }, function(err, user) {
     if (err)
       return res.send(err);
 
@@ -39,12 +39,32 @@ exports.getUser = function(req, res) {
 
 // DELETE /api/user/:user_id
 exports.deleteUser = function(req, res) {
-  User.findByIdAndRemove(req.params.user_id, function(err) {
+  User.findByIdAndRemove({ _id : req.params.user_id }, function(err) {
     if (err)
       return res.send(err);
 
     res.json({ message: 'User removed!' });
   });
+};
+
+// PUT /api/user/:user_id
+exports.putUser = function(req, res) {
+  User.findById({ _id : req.params.user_id }, function(err, user) {
+      if (err)
+        return res.send(err);
+      if (user == null)
+        return res.json("Unable to find user " + req.params.user_id)
+
+      user.endpoints = req.body.endpoints;
+console.log(user.endpoints)
+      user.save(function(err, user) {
+        if (err)
+          res.send(err);
+
+        res.json(user);
+      });
+
+    });
 };
 
 // GET /api/user/:user_id/questions

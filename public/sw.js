@@ -78,7 +78,7 @@ event.notification.close();
     return;
 
   if (result.isCorrect == "true") {  // for some reason, the event action boolean gets typecasted to a String within the event
-    fetch('/api/user/'+userId+'/score/1', {
+    fetch('/api/users/'+userId+'/score/1', {
         method: 'put'
       }).then(function(response) {
         if (response.status !== 200) {

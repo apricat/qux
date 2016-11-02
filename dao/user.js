@@ -13,6 +13,9 @@ var UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  endpoints: {
+    type: [String]
+  },
   questions: {type: mongoose.Schema.Types.ObjectId, ref: 'Question'}
 });
 

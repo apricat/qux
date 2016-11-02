@@ -5,7 +5,6 @@ var mongoose = require('mongoose');
 var morgan = require('morgan');                  // log requests to the console (express4)
 var bodyParser = require('body-parser');         // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
-var http = require('http');
 
 mongoose.connect(config.mongodb);
 
@@ -31,7 +30,7 @@ router.route('/questions')
   .post(questionController.postQuestions)
   .get(questionController.getQuestions);
 
-router.route('/question/:question_id')
+router.route('/questions/:question_id')
   .get(questionController.getQuestion)
   .delete(questionController.deleteQuestion);
 
@@ -39,11 +38,12 @@ router.route('/users')
   .post(userController.postUsers)
   .get(userController.getUsers);
 
-router.route('/user/:user_id')
+router.route('/users/:user_id')
   .get(userController.getUser)
+  .put(userController.putUser)
   .delete(userController.deleteUser);
 
-router.route('/user/:user_id/questions')
+router.route('/users/:user_id/questions')
   .get(userController.getUserQuestions);
 
 app.use('/api', router);
@@ -60,33 +60,5 @@ app.get('/quizz', function(req, res) {
 app.listen(8080);
 console.log("App listening on port 8080");
 
-// jobs --------------------------------------------------------------------
-var CronJob = require('cron').CronJob;
-new CronJob('* * * * *', function() {
-  console.log('Attempting push...');
-
-  // foreach user
-  // - retrieve endpoint
-  // - build registration_ids array
-  // - 1 http request with registrations_ids
-
-  var request = require('request');
-  var req = '{"registration_ids":["'+config.tempEntrypoint+'"]}';
-  var options = {
-    url: 'https://android.googleapis.com/gcm/send/',
-    headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' : config.pushAuthKey
-    },
-    body: req,
-    json: true
-  };
-
-  request.post(options, function (error, response, body) {
-    console.log(error);
-      if (!error && response.statusCode == 200) {
-          console.log(body)
-      }
-  });
-
-}, null, true, 'America/Los_Angeles');
+var notificationApp = require('./app/notifications');
+notificationApp.execute();

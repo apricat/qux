@@ -2,31 +2,52 @@ var quxQuestions = angular.module('quxQuestions', []);
 
 function mainController($scope, $http) {
 
-    var endpoint = "";
-    // init service worker
-    if ('serviceWorker' in navigator) {
-        console.log('Service Worker is supported');
+  //var userId = localStorage.getItem('quxUserId');
+  var userId = "581949cbad51f94698b3ce97"; // @TODO temporary: remove after login
 
-        navigator.serviceWorker.register('sw.js').then(function() {
-            return navigator.serviceWorker.ready;
-        }).then(function(reg) {
-            reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) {
-              endpoint = sub.endpoint.substr(sub.endpoint.lastIndexOf('/') + 1);
-              console.log('endpoint:', endpoint);
-            });
-        }).catch(function(error) {
-            console.log('Service Worker error', error);
-        });
-    }
+  var endpoint = "";
+  // init service worker
+  if ('serviceWorker' in navigator) {
+      console.log('Service Worker is supported');
 
-    //var userId = localStorage.getItem('quxUserId');
-    var userId = "5817e3f72b3fd73a2ede4fda"; // @TODO temporary: remove after login
+      navigator.serviceWorker.register('sw.js').then(function() {
+          return navigator.serviceWorker.ready;
+      }).then(function(reg) {
+          reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) {
+            endpoint = sub.endpoint.substr(sub.endpoint.lastIndexOf('/') + 1);
+            console.log('endpoint:', endpoint);
+
+            if (typeof $scope.user == 'undefined') {
+              $http.get('/api/users/' + userId)
+                  .success(function(data) {
+                      if (typeof data.endpoints == 'undefined') {
+                        $http.put('/api/users/' + userId, {endpoints : [endpoint]});
+                      } else if (!data.endpoints.indexOf(endpoint)) {
+                        data.endpoints.push(endpoint);
+                        $http.put('/api/users/' + userId, {endpoints : data.endpoints});
+                      }
+                  })
+                  .error(function(data) {
+                      console.log('Error: ' + data);
+                  });
+            } else {
+              if ($scope.user.endpoints.length == 0) {
+                $http.put('/api/users/' + userId, {endpoints : [endpoint]});
+              } else if (!$scope.user.endpoints.indexOf(endpoint)) {
+                $scope.user.endpoints.push(endpoint);
+                $http.put('/api/users/' + userId, {endpoints : $scope.user.endpoints});
+              }
+            }
+          });
+      }).catch(function(error) {
+          console.log('Service Worker error', error);
+      });
+  }
 
       // get user data from API
-    $http.get('/api/user/' + userId)
+    $http.get('/api/users/' + userId)
         .success(function(data) {
             $scope.user = data;
-            console.log(data);
         })
         .error(function(data) {
             console.log('Error: ' + data);
@@ -41,7 +62,7 @@ function mainController($scope, $http) {
 
     // get all user questions
     $scope.getUserQuestions = function() {
-      $http.get('/api/user/' + userId + '/questions')
+      $http.get('/api/users/' + userId + '/questions')
           .success(function(data) {
               $scope.questions = data;
               console.log(data);
@@ -58,7 +79,7 @@ function mainController($scope, $http) {
 
         // todo upload thumbnail and return path
 
-        $http.post('/api/question', $scope.formData)
+        $http.post('/api/questions', $scope.formData)
             .success(function(data) {
                 $scope.formData = {
                     "content" : "",
@@ -74,7 +95,7 @@ function mainController($scope, $http) {
     };
 
     $scope.deleteQuestion = function(id) {
-        $http.delete('/api/question/' + id)
+        $http.delete('/api/questions/' + id)
             .success(function(data) {
                 $scope.getUserQuestions();
                 console.log(data);

@@ -1,5 +1,5 @@
 // Load required packages
-var Question = require('../models/question');
+var Question = require('../dao/question');
 
 // POST /api/questions
 exports.postQuestions = function(req, res) {
@@ -29,7 +29,7 @@ exports.getQuestions = function(req, res) {
   });
 };
 
-// GET /api/question/:question_id
+// GET /api/questions/:question_id
 exports.getQuestion = function(req, res) {
   Question.findById({ _id: req.params.question_id }, function(err, question) {
     if (err)
@@ -39,7 +39,7 @@ exports.getQuestion = function(req, res) {
   });
 };
 
-// DELETE /api/question/:question_id
+// DELETE /api/questions/:question_id
 exports.deleteQuestion = function(req, res) {
   Question.findByIdAndRemove({ _id: req.params.question_id }, function(err) {
     if (err)
