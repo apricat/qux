@@ -4,16 +4,12 @@ self.addEventListener('push', function(event) {
   // an API and use it to populate a notification
   event.waitUntil(
     fetch("/api/questions").then(function(response) {
-      if (response.status !== 200) {
-        console.log('Looks like there was a problem. Status Code: ' + response.status);
-        throw new Error();
-      }
+      if (response.status !== 200)
+        throw new Error('Looks like there was a problem. Status Code: ' + response.status);
 
       return response.json().then(function(data) {
-        if (data.error || data.length < 1) {
-          console.error('The API returned an error.', data.error);
-          throw new Error();
-        }
+        if (data.error || data.length < 1)
+          throw new Error('The API returned an error.' + data.error);
 
         var question = data[Math.floor(Math.random() * data.length)];
 
@@ -68,10 +64,10 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
-var userId = 0;
-console.log(event.action);
+  var userId = 0;
+  console.log(event.action);
 
-event.notification.close();
+  event.notification.close();
   var result = JSON.parse(event.action);
 
   if (result == null || result.isCorrect == null)

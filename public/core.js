@@ -8,8 +8,6 @@ function mainController($scope, $http) {
   var endpoint = "";
   // init service worker
   if ('serviceWorker' in navigator) {
-      console.log('Service Worker is supported');
-
       navigator.serviceWorker.register('sw.js').then(function() {
           return navigator.serviceWorker.ready;
       }).then(function(reg) {

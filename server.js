@@ -60,5 +60,5 @@ app.get('/quizz', function(req, res) {
 app.listen(8080);
 console.log("App listening on port 8080");
 
-var notificationApp = require('./app/notifications');
+var notificationApp = require('./operations/notifications');
 notificationApp.execute();

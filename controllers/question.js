@@ -1,5 +1,5 @@
 // Load required packages
-var Question = require('../dao/question');
+var Question = require('../models/question');
 
 // POST /api/questions
 exports.postQuestions = function(req, res) {

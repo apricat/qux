@@ -1,6 +1,6 @@
 // Load required packages
-var User = require('../dao/user');
-var Question = require('../dao/question');
+var User = require('../models/user');
+var Question = require('../models/question');
 
 // POST /api/users
 exports.postUsers = function(req, res) {
@@ -56,7 +56,7 @@ exports.putUser = function(req, res) {
         return res.json("Unable to find user " + req.params.user_id)
 
       user.endpoints = req.body.endpoints;
-console.log(user.endpoints)
+
       user.save(function(err, user) {
         if (err)
           res.send(err);
