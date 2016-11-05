@@ -9,8 +9,10 @@ exports.execute = function(req, res) {
   new CronJob('* * * * *', function() {
 
     User.find(function(err, users) {
-      if (err)
+      if (err) {
         console.error(err);
+        return;
+      }
 
       if (shouldNotifyUser())
         return;
@@ -20,7 +22,7 @@ exports.execute = function(req, res) {
         var message = new gcm.Message({ data: { userId: users[i]._id } });
 
         sender.send(message, { registrationTokens: users[i].endpoints }, function (err, response) {
-            if(err)
+            if (err)
               console.error(err);
         });
       }
