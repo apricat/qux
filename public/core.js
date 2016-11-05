@@ -1,46 +1,10 @@
-var quxQuestions = angular.module('quxQuestions', []);
+var app = angular.module("quxQuestions", []);
 
-function mainController($scope, $http) {
+var userId = "581949cbad51f94698b3ce97"; // @TODO temporary: remove after login
 
-  //var userId = localStorage.getItem('quxUserId');
-  var userId = "581949cbad51f94698b3ce97"; // @TODO temporary: remove after login
+function mainController($scope, $http, RegisterSWService) {
 
-  var endpoint = "";
-  // init service worker
-  if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').then(function() {
-          return navigator.serviceWorker.ready;
-      }).then(function(reg) {
-          reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) {
-            endpoint = sub.endpoint.substr(sub.endpoint.lastIndexOf('/') + 1);
-            console.log('endpoint:', endpoint);
-
-            if (typeof $scope.user == 'undefined') {
-              $http.get('/api/users/' + userId)
-                  .success(function(data) {
-                      if (typeof data.endpoints == 'undefined') {
-                        $http.put('/api/users/' + userId, {endpoints : [endpoint]});
-                      } else if (!data.endpoints.indexOf(endpoint)) {
-                        data.endpoints.push(endpoint);
-                        $http.put('/api/users/' + userId, {endpoints : data.endpoints});
-                      }
-                  })
-                  .error(function(data) {
-                      console.log('Error: ' + data);
-                  });
-            } else {
-              if ($scope.user.endpoints.length == 0) {
-                $http.put('/api/users/' + userId, {endpoints : [endpoint]});
-              } else if (!$scope.user.endpoints.indexOf(endpoint)) {
-                $scope.user.endpoints.push(endpoint);
-                $http.put('/api/users/' + userId, {endpoints : $scope.user.endpoints});
-              }
-            }
-          });
-      }).catch(function(error) {
-          console.log('Service Worker error', error);
-      });
-  }
+    //var userId = localStorage.getItem('quxUserId');
 
       // get user data from API
     $http.get('/api/users/' + userId)
@@ -139,3 +103,32 @@ function quizzController($scope, $http) {
     };
 
 }
+
+app.factory("RegisterSWService", function($http) {
+  var endpoint = "";
+  // init service worker
+  if (!('serviceWorker' in navigator))
+    return;
+
+  navigator.serviceWorker.register('sw.js').then(function() {
+      return navigator.serviceWorker.ready;
+  }).then(function(reg) {
+      reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) {
+
+        endpoint = sub.endpoint.substr(sub.endpoint.lastIndexOf('/') + 1);
+        $http.get('/api/users/' + userId)
+            .success(function(data) {
+              if (data.endpoints.indexOf(endpoint) !== false)
+                return;
+
+              data.endpoints.push(endpoint);
+              $http.put('/api/users/' + userId, {endpoints : data.endpoints});
+            })
+            .error(function(data) {
+                console.error('Error: ' + data);
+            });
+      });
+  }).catch(function(error) {
+      console.error('Service Worker error', error);
+  });
+});
