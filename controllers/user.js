@@ -67,6 +67,26 @@ exports.putUser = function(req, res) {
     });
 };
 
+// PUT /api/user/:user_id/score/increment
+exports.putUserScore = function(req, res) {
+  User.findById({ _id : req.params.user_id }, function(err, user) {
+      if (err)
+        return res.send(err);
+      if (user == null)
+        return res.json("Unable to find user " + req.params.user_id)
+
+      user.score++;
+
+      user.save(function(err, user) {
+        if (err)
+          res.send(err);
+
+        res.json(user);
+      });
+
+    });
+};
+
 // GET /api/user/:user_id/questions
 exports.getUserQuestions = function(req, res) {
   Question.find({ _userId: req.params.user_id }, function(err, questions) {

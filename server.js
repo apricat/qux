@@ -43,8 +43,8 @@ router.route('/users/:user_id')
   .put(userController.putUser)
   .delete(userController.deleteUser);
 
-/*router.route('/users/entrypoint/:entrypoint')
-  .get(userController.getUserByEntrypoint);*/
+router.route('/users/:user_id/score/increment')
+  .put(userController.putUserScore);
 
 router.route('/users/:user_id/questions')
   .get(userController.getUserQuestions);

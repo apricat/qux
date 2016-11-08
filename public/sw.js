@@ -1,7 +1,11 @@
 self.addEventListener('push', function(event) {
+  console.log(event)
   // Since there is no payload data with the first version
   // of push messages, we'll grab some data from
   // an API and use it to populate a notification
+
+// @TODO find the userID related to this entrypoint in order to only fetcher user questions
+
   event.waitUntil(
     fetch("/api/questions").then(function(response) {
       if (response.status !== 200)
@@ -38,18 +42,7 @@ self.addEventListener('push', function(event) {
       });
 
     }).catch(function(err) {
-      console.error('Unable to retrieve data', err);
-
-      var title = 'An error occurred',
-          message = 'We were unable to get the information for this push message',
-          icon = 'images/icon.png',
-          notificationTag = 'notification-error';
-
-      return self.registration.showNotification(title, {
-          body: message,
-          icon: icon,
-          tag: notificationTag
-        });
+      console.error("Unable to retrieve questions from API.", err);
     })
   );
 });
@@ -65,45 +58,40 @@ self.addEventListener('activate', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
   var userId = event.data;
-  console.log(event.action);
+  console.log(event.action, event.data);
 
   event.notification.close();
-    var result = JSON.parse(event.action);
+  var result = JSON.parse(event.action);
 
-    if (result == null || result.isCorrect == null)
-      return;
+  if (result == null || result.isCorrect == null)
+    return;
 
-    if (result.isCorrect == "true") {  // for some reason, the event action boolean gets typecasted to a String within the event
-      fetch('/api/users/'+userId+'/score/1', {
-          method: 'put'
-        }).then(function(response) {
-          if (response.status !== 200) {
-            console.log('Looks like there was a problem. Status Code: ' + response.status);
-            throw new Error();
-          }
-      }).catch(function(err) {
-        console.error('Unable to increment score', err);
-      });
+  if (result.isCorrect == "true") {  // for some reason, the event action boolean gets typecasted to a String within the event
+    fetch('/api/users/'+ userId +'/score/increment', {
+        method: 'put'
+    }).catch(function(err) {
+      console.error('Unable to increment score', err);
+    });
 
-      var title = "+1",
-          message = "Great answer!",
-          icon = 'images/thumbs-up.png',
-          notificationTag = 'success';
+    var title = "+1",
+        message = "Great answer!",
+        icon = 'images/thumbs-up.png',
+        notificationTag = 'success';
 
-    } else if (event.action == "false") {
+  } else if (event.action == "false") {
 
-      var title = ":("
-          message = "Bad answer",
-          icon = 'images/thumbs-down.png',
-          notificationTag = 'success';
+    var title = ":("
+        message = "Bad answer",
+        icon = 'images/thumbs-down.png',
+        notificationTag = 'success';
 
-    } else {
-      return;
-    }
+  } else {
+    return;
+  }
 
-    return self.registration.showNotification(title, {
-        body: message,
-        icon: icon,
-        tag: notificationTag
-      });
+  return self.registration.showNotification(title, {
+      body: message,
+      icon: icon,
+      tag: notificationTag
+    });
 }, false);

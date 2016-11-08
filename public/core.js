@@ -51,6 +51,8 @@ app.factory("RegisterSWService", function($http) {
       reg.pushManager.subscribe({userVisibleOnly: true}).then(function(sub) {
 
         endpoint = sub.endpoint.substr(sub.endpoint.lastIndexOf('/') + 1);
+        console.log(endpoint);
+
         $http.get('/api/users/' + userId)
             .success(function(data) {
               if (data.endpoints.indexOf(endpoint) !== false)
